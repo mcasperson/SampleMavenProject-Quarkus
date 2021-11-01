@@ -102,10 +102,11 @@ jobs:
       uses: xo-energy/action-octopus-build-information@v1.0.0
       with:
         octopus_api_key: ${{ secrets.OCTOPUS_API_TOKEN }}
-        project: maven1application
+        octopus_project: maven1application
         octopus_server: ${{ secrets.OCTOPUS_SERVER_URL }}
         push_version: ${{ steps.determine_version.outputs.semVer }}
         push_package_ids: maven1application
+        output_path: octopus
     - name: Create Octopus Release
       uses: OctopusDeploy/create-release-action@v1.1.1
       with:
