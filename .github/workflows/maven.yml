@@ -31,6 +31,14 @@ jobs:
     - name: Test
       run: mvn --batch-mode -Dmaven.test.failure.ignore=true test
       shell: bash
+    - if: always()
+      name: Report
+      uses: dorny/test-reporter@v1
+      with:
+        name: Maven Tests
+        path: target/surefire-reports/*.xml
+        reporter: java-junit
+        fail-on-error: 'false'
     - name: Package
       run: mvn --batch-mode -DskipTests=true package
       shell: bash
@@ -62,6 +70,14 @@ jobs:
         asset_path: ${{ steps.get_artifact.outputs.artifact }}
         asset_name: ${{ steps.get_artifact_name.outputs.artifact }}
         asset_content_type: application/octet-stream
+    - name: Push to Octopus
+      run: octo push --package "${{ steps.get_artifact.outputs.artifact }}" --server
+        ${{ secrets.OCTOPUS_SERVER_URL }} --apiKey ${{ secrets.OCTOPUS_API_TOKEN }}
+      shell: bash
+    - name: Trigger Octopus Deployment
+      run: octo create-release --project "MyProject" --deployTo "Development" --server
+        ${{ secrets.OCTOPUS_SERVER_URL }} --apiKey ${{ secrets.OCTOPUS_API_TOKEN }}
+      shell: bash
 name: Java Maven Build
 'on':
   workflow_dispatch: {}
