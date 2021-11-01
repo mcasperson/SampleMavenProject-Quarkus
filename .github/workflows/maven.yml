@@ -87,7 +87,7 @@ jobs:
       name: Create Octopus Artifact
       run: |-
         file="${{ steps.get_artifact.outputs.artifact }}"
-        extension="${filename##*.}"
+        extension="${file##*.}"
         octofile="maven1application.${{ steps.determine_version.outputs.semVer }}.${extension}"
         cp ${file} ${octofile}; echo "::set-output name=artifact::${octofile}"
         ls -la
