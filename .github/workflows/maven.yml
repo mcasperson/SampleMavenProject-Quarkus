@@ -70,9 +70,16 @@ jobs:
         asset_path: ${{ steps.get_artifact.outputs.artifact }}
         asset_name: ${{ steps.get_artifact_name.outputs.artifact }}
         asset_content_type: application/octet-stream
+    - id: get_octopus_artifact
+      name: Create Octopus Artifact
+      run: file="${{ steps.get_artifact.outputs.artifact }}"; filename="${file##*/}";
+        extension="${filename##*.}" octofile="${filename}.0.1.${{ github.run_number
+        }}.${extension}"; cp ${file} ${octofile}; echo "::set-output name=artifact::${octofile##*/}"
+      shell: bash
     - name: Push to Octopus
-      run: octo push --package "${{ steps.get_artifact.outputs.artifact }}" --server
-        ${{ secrets.OCTOPUS_SERVER_URL }} --apiKey ${{ secrets.OCTOPUS_API_TOKEN }}
+      run: octo push --package "${{ steps.get_octopus_artifact.outputs.artifact }}"
+        --server ${{ secrets.OCTOPUS_SERVER_URL }} --apiKey ${{ secrets.OCTOPUS_API_TOKEN
+        }}
       shell: bash
     - name: Trigger Octopus Deployment
       run: octo create-release --project "MyProject" --deployTo "Development" --server
