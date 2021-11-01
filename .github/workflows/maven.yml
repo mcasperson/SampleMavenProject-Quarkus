@@ -3,6 +3,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
+      with:
+        fetch-depth: '0'
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v0.9.7
+      with:
+        versionSpec: 5.x
+    - id: determine_version
+      name: Determine Version
+      uses: gittools/actions/gitversion/execute@v0.9.7
     - name: Install Octopus Deploy CLI
       uses: OctopusDeploy/install-octocli@v1.1.1
       with:
@@ -12,6 +21,10 @@ jobs:
       with:
         java-version: '17'
         distribution: adopt
+    - name: Set Version
+      run: mvn --batch-mode versions:set ${{ steps.determine_version.outputs.semVer
+        }}
+      shell: bash
     - name: List Dependencies
       run: mvn --batch-mode dependency:tree --no-transfer-progress > dependencies.txt
       shell: bash
@@ -57,8 +70,8 @@ jobs:
       name: Create Release
       uses: actions/create-release@v1
       with:
-        tag_name: 0.1.${{ github.run_number }}
-        release_name: Release 0.1.${{ github.run_number }}
+        tag_name: ${{ steps.determine_version.outputs.semVer }}
+        release_name: Release ${{ steps.determine_version.outputs.semVer }}
         draft: 'false'
         prerelease: 'false'
     - env:
@@ -72,10 +85,9 @@ jobs:
         asset_content_type: application/octet-stream
     - id: get_octopus_artifact
       name: Create Octopus Artifact
-      run: file="${{ steps.get_artifact.outputs.artifact }}"; filename="${file##*/}";
-        filenoextension="${filename%.*}"; extension="${filename##*.}" octofile="${filenoextension}.0.1.${{
-        github.run_number }}.${extension}"; cp ${file} ${octofile}; echo "::set-output
-        name=artifact::${octofile##*/}"
+      run: file="${{ steps.get_artifact.outputs.artifact }}"; extension="${filename##*.}"
+        octofile="maven1application${{ steps.determine_version.outputs.semVer }}.${extension}";
+        cp ${file} ${octofile}; echo "::set-output name=artifact::${octofile}"
       shell: bash
     - name: Push to Octopus
       run: octo push --package "${{ steps.get_octopus_artifact.outputs.artifact }}"
@@ -83,8 +95,9 @@ jobs:
         }}
       shell: bash
     - name: Trigger Octopus Deployment
-      run: octo create-release --project "MyProject" --deployTo "Development" --server
-        ${{ secrets.OCTOPUS_SERVER_URL }} --apiKey ${{ secrets.OCTOPUS_API_TOKEN }}
+      run: octo create-release --project "maven1application" --deployTo "Development"
+        --server ${{ secrets.OCTOPUS_SERVER_URL }} --apiKey ${{ secrets.OCTOPUS_API_TOKEN
+        }}
       shell: bash
 name: Java Maven Build
 'on':
