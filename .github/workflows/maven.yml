@@ -93,8 +93,11 @@ jobs:
         ls -la
       shell: bash
     - name: Push to Octopus
-      run: octo push --package "${{ steps.get_octopus_artifact.outputs.artifact }}" --server ${{ secrets.OCTOPUS_SERVER_URL }} --apiKey ${{ secrets.OCTOPUS_API_TOKEN }}
-      shell: bash
+      uses: OctopusDeploy/push-package-action@
+      with:
+        api_key: ${{ secrets.OCTOPUS_API_TOKEN }}
+        packages: ${{ steps.get_octopus_artifact.outputs.artifact }}}
+        server: ${{ secrets.OCTOPUS_SERVER_URL }}
     - name: Trigger Octopus Deployment
       run: octo create-release --project "maven1application" --deployTo "Development" --server ${{ secrets.OCTOPUS_SERVER_URL }} --apiKey ${{ secrets.OCTOPUS_API_TOKEN }}
       shell: bash
