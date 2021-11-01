@@ -72,7 +72,7 @@ jobs:
         asset_content_type: application/octet-stream
     - id: get_octopus_artifact
       name: Create Octopus Artifact
-      run: file="${{ steps.get_artifact.outputs.artifact }}"; filename="${filename%.*}";
+      run: file="${{ steps.get_artifact.outputs.artifact }}"; filename="${file##*/}";
         filenoextension="${filename%.*}"; extension="${filename##*.}" octofile="${filenoextension}.0.1.${{
         github.run_number }}.${extension}"; cp ${file} ${octofile}; echo "::set-output
         name=artifact::${octofile##*/}"
