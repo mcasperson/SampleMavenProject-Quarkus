@@ -57,8 +57,9 @@ jobs:
       shell: bash
     - id: get_artifact
       name: Get Artifact
-      run: echo "::set-output name=artifact::$(find target -type f \( -iname \*.jar
-        -o -iname \*.war \) -printf "%p\n" | sort -n | head -1)"
+      run: |-
+        # Find the largest WAR or JAR, and assume that was what we intended to build.
+        echo "::set-output name=artifact::$(find target -type f \( -iname \*.jar -o -iname \*.war \) -printf "%p\n" | sort -n | head -1)"
       shell: bash
     - id: get_artifact_name
       name: Get Artifact Name
@@ -87,7 +88,8 @@ jobs:
       name: Create Octopus Artifact
       run: file="${{ steps.get_artifact.outputs.artifact }}"; extension="${filename##*.}";
         octofile="maven1application.${{ steps.determine_version.outputs.semVer }}.${extension}";
-        cp ${file} ${octofile}; echo "::set-output name=artifact::${octofile}"
+        cp ${file} ${octofile}; echo "::set-output name=artifact::${octofile}"; ls
+        -la
       shell: bash
     - name: Push to Octopus
       run: octo push --package "${{ steps.get_octopus_artifact.outputs.artifact }}"
