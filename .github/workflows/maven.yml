@@ -117,6 +117,3 @@ name: Java Maven Build
 'on':
   workflow_dispatch: {}
   push: {}
-
-
-Process finished with exit code 0
