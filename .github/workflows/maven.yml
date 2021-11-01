@@ -85,8 +85,8 @@ jobs:
         asset_content_type: application/octet-stream
     - id: get_octopus_artifact
       name: Create Octopus Artifact
-      run: file="${{ steps.get_artifact.outputs.artifact }}"; extension="${filename##*.}"
-        octofile="maven1application${{ steps.determine_version.outputs.semVer }}.${extension}";
+      run: file="${{ steps.get_artifact.outputs.artifact }}"; extension="${filename##*.}";
+        octofile="maven1application.${{ steps.determine_version.outputs.semVer }}.${extension}";
         cp ${file} ${octofile}; echo "::set-output name=artifact::${octofile}"
       shell: bash
     - name: Push to Octopus
