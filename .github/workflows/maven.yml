@@ -98,13 +98,6 @@ jobs:
         api_key: ${{ secrets.OCTOPUS_API_TOKEN }}
         packages: ${{ steps.get_octopus_artifact.outputs.artifact }}
         server: ${{ secrets.OCTOPUS_SERVER_URL }}
-    - name: Create Octopus Release
-      uses: OctopusDeploy/create-release-action@v1.1.1
-      with:
-        api_key: ${{ secrets.OCTOPUS_API_TOKEN }}
-        project: maven1application
-        server: ${{ secrets.OCTOPUS_SERVER_URL }}
-        deploy_to: Development
     - name: Generate Octopus Deploy build information
       uses: xo-energy/action-octopus-build-information@v1.0.0
       with:
@@ -113,7 +106,17 @@ jobs:
         octopus_server: ${{ secrets.OCTOPUS_SERVER_URL }}
         push_version: ${{ steps.determine_version.outputs.semVer }}
         push_package_ids: maven1application
+    - name: Create Octopus Release
+      uses: OctopusDeploy/create-release-action@v1.1.1
+      with:
+        api_key: ${{ secrets.OCTOPUS_API_TOKEN }}
+        project: maven1application
+        server: ${{ secrets.OCTOPUS_SERVER_URL }}
+        deploy_to: Development
 name: Java Maven Build
 'on':
   workflow_dispatch: {}
   push: {}
+
+
+Process finished with exit code 0
