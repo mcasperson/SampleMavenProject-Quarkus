@@ -93,7 +93,7 @@ jobs:
         ls -la
       shell: bash
     - name: Push to Octopus
-      uses: OctopusDeploy/push-package-action@
+      uses: OctopusDeploy/push-package-action@latest
       with:
         api_key: ${{ secrets.OCTOPUS_API_TOKEN }}
         packages: ${{ steps.get_octopus_artifact.outputs.artifact }}}
